@@ -86,8 +86,7 @@ export default class {
   }
 
   
-  // Original function
-  /*handleEditTicket(e, bill, bills) {
+  handleEditTicket(e, bill, bills) {
     if (this.counter === undefined || this.id !== bill.id) this.counter = 0
     if (this.id === undefined || this.id !== bill.id) this.id = bill.id
     if (this.counter % 2 === 0) {
@@ -110,22 +109,22 @@ export default class {
     $('#icon-eye-d').click(this.handleClickIconEye)
     $('#btn-accept-bill').click((e) => this.handleAcceptSubmit(e, bill))
     $('#btn-refuse-bill').click((e) => this.handleRefuseSubmit(e, bill))
-  }*/
+  }
   
   // Bug fixing
-  handleEditTicket(e, bill, bills) {
-    this.id = bill.id
-    bills.forEach(b => {
-      $(`#open-bill${b.id}`).css({ background: '#0D5AE5' })
-    })
-    $(`#open-bill${bill.id}`).css({ background: '#2A2B35' })
-    $('.dashboard-right-container div').html(DashboardFormUI(bill))
-    $('.vertical-navbar').css({ height: '150vh' })
-    this.counter ++
-    $('#icon-eye-d').click(this.handleClickIconEye)
-    $('#btn-accept-bill').click((e) => this.handleAcceptSubmit(e, bill))
-    $('#btn-refuse-bill').click((e) => this.handleRefuseSubmit(e, bill))
-  }
+  // handleEditTicket(e, bill, bills) {
+  //   this.id = bill.id
+  //   bills.forEach(b => {
+  //     $(`#open-bill${b.id}`).css({ background: '#0D5AE5' })
+  //   })
+  //   $(`#open-bill${bill.id}`).css({ background: '#2A2B35' })
+  //   $('.dashboard-right-container div').html(DashboardFormUI(bill))
+  //   $('.vertical-navbar').css({ height: '150vh' })
+  //   this.counter ++
+  //   $('#icon-eye-d').click(this.handleClickIconEye)
+  //   $('#btn-accept-bill').click((e) => this.handleAcceptSubmit(e, bill))
+  //   $('#btn-refuse-bill').click((e) => this.handleRefuseSubmit(e, bill))
+  // }
 
   handleAcceptSubmit = (e, bill) => {
     const newBill = {
@@ -166,7 +165,7 @@ export default class {
       console.log('handleShowTickets, valeur de counter: ' + this.counter)
     }
 
-    bills.forEach(bill => {
+    filteredBills(bills, getStatus(this.index)).forEach(bill => {
       $(`#open-bill${bill.id}`).click((e) => this.handleEditTicket(e, bill, bills))
     })
 
