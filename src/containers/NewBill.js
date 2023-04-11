@@ -17,7 +17,10 @@ export default class NewBill {
   }
   handleChangeFile = e => {
     e.preventDefault()
-    document.querySelector(".error-extension-file").style.display = "none"
+    if (document.querySelector(".file-error-message").classList.contains("visible")) {
+      document.querySelector(".file-error-message").classList.remove("visible");
+    }
+
     const file = this.document.querySelector(`input[data-testid="file"]`).files[0]
     const filePath = e.target.value.split(/\\/g)
     const fileName = filePath[filePath.length-1]
@@ -43,16 +46,15 @@ export default class NewBill {
           this.fileName = fileName
         }).catch(error => console.error(error))
     } else {
-      document.querySelector(".error-extension-file").style.display = "block"
-      // document.querySelector(`input[data-testid="file"]`).value = null
+      document.querySelector(".file-error-message").classList.add("visible")
     }
   }
   handleSubmit = e => {
     e.preventDefault()
-    console.log('e.target.querySelector(`input[data-testid="datepicker"]`).value', e.target.querySelector(`input[data-testid="datepicker"]`).value)
+    //console.log('e.target.querySelector(`input[data-testid="datepicker"]`).value', e.target.querySelector(`input[data-testid="datepicker"]`).value)
     const email = JSON.parse(localStorage.getItem("user")).email
     const bill = {
-      email,
+      //email,
       type: e.target.querySelector(`select[data-testid="expense-type"]`).value,
       name:  e.target.querySelector(`input[data-testid="expense-name"]`).value,
       amount: parseInt(e.target.querySelector(`input[data-testid="amount"]`).value),

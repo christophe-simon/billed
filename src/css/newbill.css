@@ -62,7 +62,11 @@ textarea:focus, input:focus, select:focus {
   color: #0E5AE5 !important;
 }
 
-.error-extension-file {
+.file-error-message {
   color: red;
   display: none;
+}
+
+.visible {
+  display: block;
 }
