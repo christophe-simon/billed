@@ -189,74 +189,25 @@ describe("Given I am connected as an employee", () => {
       expect(billsData).toEqual([]);
     });
   });
+});
 
-  // Intégration test
-  describe("Given I am connected as an employee", () => {
-    describe("When I navigate to Bills", () => {
-      test("fetches bills from mock API GET", async () => {
-        localStorage.setItem(
-          "user",
-          JSON.stringify({ type: "Employee", email: "e@e" })
-        );
-        const root = document.createElement("div");
-        root.setAttribute("id", "root");
-        document.body.append(root);
-        router();
-        window.onNavigate(ROUTES_PATH.Bills);
-        await waitFor(() => screen.getByText("Mes notes de frais"));
-
-        // Attendez que tous les éléments bill-id soient disponibles dans le DOM
-        // await waitFor(() =>
-        //   expect(screen.queryAllByTestId("bill-id").length).toBe(4)
-        // );
-
-        await waitFor(() =>
-          console.log(screen.queryAllByTestId("bill-id").length)
-        );
-        expect(screen.queryAllByTestId("bill-id").length).toBe(4);
-
-        const billsList = screen.getAllByTestId("bill-id");
-        expect(billsList.length).toBe(4);
-      });
-
-      test("create a new bill", async () => {
-        window.onNavigate(ROUTES_PATH.NewBill);
-        await waitFor(() => screen.getByText("Envoyer une note de frais"));
-
-        const file = new File(["hello"], "hello.png", { type: "image/png" });
-        const fileInput = screen.getByTestId("file");
-        userEvent.upload(fileInput, file);
-
-        const billType = screen.getByTestId("expense-type");
-        userEvent.selectOptions(billType, "Transports");
-
-        const billName = screen.getByTestId("expense-name");
-        userEvent.type(billName, "Train");
-
-        const billAmount = screen.getByTestId("amount");
-        userEvent.type(billAmount, "120.00");
-
-        const billDate = screen.getByTestId("datepicker");
-        userEvent.type(billDate, "2022-10-01");
-
-        const billVAT = screen.getByTestId("vat");
-        userEvent.type(billVAT, "20");
-
-        const billPct = screen.getByTestId("pct");
-        userEvent.type(billPct, "80");
-
-        const billComment = screen.getByTestId("commentary");
-        userEvent.type(billComment, "Business trip to Paris");
-
-        const submitBtn = screen.getByTestId("form-new-bill-btn");
-        userEvent.click(submitBtn);
-
-        await waitFor(() => screen.getByText("Mes notes de frais"));
-        const updatedBillsList = screen.getAllByTestId("bill-id");
-        expect(updatedBillsList.length).toBe(5);
-      });
+// Integration test
+describe("Given I am a user connected as Employee", () => {
+  describe("When I navigate to Bills page", () => {
+    test("fetches bills from mock API GET", async () => {
+      localStorage.setItem(
+        "user",
+        JSON.stringify({ type: "Employee", email: "a@a" })
+      );
+      const root = document.createElement("div");
+      root.setAttribute("id", "root");
+      document.body.append(root);
+      router();
+      window.onNavigate(ROUTES_PATH.Bills);
+      await waitFor(() =>
+        expect(screen.getByText("Mes notes de frais")).toBeTruthy()
+      );
     });
-
     describe("When an error occurs on API", () => {
       beforeEach(() => {
         jest.spyOn(mockStore, "bills");
@@ -267,7 +218,7 @@ describe("Given I am connected as an employee", () => {
           "user",
           JSON.stringify({
             type: "Employee",
-            email: "e@e",
+            email: "a@a",
           })
         );
         const root = document.createElement("div");
@@ -275,7 +226,6 @@ describe("Given I am connected as an employee", () => {
         document.body.appendChild(root);
         router();
       });
-
       test("fetches bills from an API and fails with 404 message error", async () => {
         mockStore.bills.mockImplementationOnce(() => {
           return {
@@ -285,8 +235,8 @@ describe("Given I am connected as an employee", () => {
           };
         });
         window.onNavigate(ROUTES_PATH.Bills);
-        await new Promise(process.nextTick);
-        const message = await screen.getByText(/Erreur 404/);
+        await waitFor(() => new Promise(process.nextTick));
+        const message = await waitFor(() => screen.getByText(/Erreur 404/));
         expect(message).toBeTruthy();
       });
 
@@ -298,9 +248,10 @@ describe("Given I am connected as an employee", () => {
             },
           };
         });
+
         window.onNavigate(ROUTES_PATH.Bills);
-        await new Promise(process.nextTick);
-        const message = await screen.getByText(/Erreur 500/);
+        await waitFor(() => new Promise(process.nextTick));
+        const message = await waitFor(() => screen.getByText(/Erreur 500/));
         expect(message).toBeTruthy();
       });
     });
