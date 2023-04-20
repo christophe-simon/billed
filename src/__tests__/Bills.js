@@ -14,7 +14,7 @@ import { formatDate, formatStatus } from "../app/format.js";
 import mockStore from "../__mocks__/store.js";
 import $ from "jquery";
 
-// jest.mock("../app/store", () => mockStore);
+jest.mock("../app/Store", () => require("../__mocks__/store.js"));
 $.fn.modal = jest.fn();
 
 describe("Given I am connected as an employee", () => {

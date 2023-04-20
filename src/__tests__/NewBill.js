@@ -11,7 +11,7 @@ import mockStore from "../__mocks__/store.js";
 import { ROUTES, ROUTES_PATH } from "../constants/routes";
 import router from "../app/Router.js";
 
-jest.mock("../app/store", () => mockStore);
+jest.mock("../app/Store", () => require("../__mocks__/store.js"));
 
 function createFileList(files) {
   const fileList = Object.create(null);
