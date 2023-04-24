@@ -13,7 +13,7 @@ import mockStore from "../__mocks__/store";
 import { bills } from "../fixtures/bills";
 import router from "../app/Router";
 
-jest.mock("../app/store", () => require("../__mocks__/store.js"));
+jest.mock("../app/Store", () => require("../__mocks__/store.js"));
 
 describe("Given I am connected as an Admin", () => {
   describe("When I am on Dashboard page, there are bills, and there is one pending", () => {

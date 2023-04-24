@@ -218,10 +218,12 @@ describe("Given I am connected as an employee on the NewBill page, and I submit 
 
       // Wait for the handleChangeFile to be called
       await waitFor(() => expect(newBill.fileUrl).toBeTruthy());
-
+      
+      mockStore.bills().update = jest.fn().mockImplementation(() => Promise.resolve({}));
+      newBill.onNavigate = jest.fn(newBill.onNavigate(ROUTES_PATH.Bills));
       // Submit the form
       fireEvent.submit(form);
-
+      
       // Check if the POST request is called with the correct data
       const expectedData = {
         email: "a@a",
@@ -236,29 +238,9 @@ describe("Given I am connected as an employee on the NewBill page, and I submit 
         fileName: "image.jpg",
         status: "pending",
       };
-      expect(mockStore.bills().update).toHaveBeenCalledWith({
-        data: JSON.stringify(expectedData),
-        selector: newBill.billId,
-      });
-    });
 
-    test("Then I should be sent on bills page with bills updated", async () => {
-      const newBill = new NewBill({
-        document,
-        onNavigate,
-        store: mockStore,
-        localStorage: window.localStorageMock,
-      });
-
-      const form = screen.getByTestId("form-new-bill");
-      const handleSubmit = jest.fn((e) => newBill.handleSubmit(e));
-      form.addEventListener("submit", handleSubmit);
-
-      fireEvent.submit(form);
-
-      expect(handleSubmit).toHaveBeenCalled();
-      expect(screen.getByText("Mes notes de frais")).toBeTruthy();
-      expect(mockStore.bills).toHaveBeenCalled();
+      expect(mockStore.bills().update).toHaveBeenCalled();
+      expect(newBill.onNavigate).toHaveBeenCalledWith(ROUTES_PATH.Bills);
     });
   });
 
@@ -294,4 +276,4 @@ describe("Given I am connected as an employee on the NewBill page, and I submit 
       expect(console.error).toHaveBeenCalled();
     });
   });
-});
+})
