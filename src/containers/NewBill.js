@@ -32,7 +32,7 @@ export default class NewBill {
     const filePath = e.target.value.split(/\\/g);
     const fileName = filePath[filePath.length - 1];
     const fileExtension = fileName.split(".").pop();
-    
+
     const formData = new FormData();
     const email = JSON.parse(localStorage.getItem("user")).email;
     formData.append("file", file);
@@ -63,6 +63,7 @@ export default class NewBill {
   handleSubmit = (e) => {
     e.preventDefault();
     //console.log('e.target.querySelector(`input[data-testid="datepicker"]`).value', e.target.querySelector(`input[data-testid="datepicker"]`).value)
+
     const email = JSON.parse(localStorage.getItem("user")).email;
     const bill = {
       email,
@@ -82,6 +83,10 @@ export default class NewBill {
       fileName: this.fileName,
       status: "pending",
     };
+
+    if (!bill.name || !bill.date || !bill.amount) {
+      return;
+    }
     this.updateBill(bill);
     this.onNavigate(ROUTES_PATH["Bills"]);
   };

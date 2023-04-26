@@ -55,20 +55,38 @@ describe("Given I am connected as an employee", () => {
       expect(mailIcon.className).toBe("active-icon");
     });
   });
+});
 
-  describe("When I am on the NewBill page and I submit the form with empty fields", () => {
-    test("Then I should stay on the NewBill page", () => {
-      const onNavigateMock = jest.fn();
-      window.onNavigate = onNavigateMock;
-      window.onNavigate(ROUTES_PATH.NewBill);
+describe("Given I am connected as an employee and I am on the NewBill page", () => {
+  let newBill;
+  let onNavigateMock;
 
-      const newBill = new NewBill({
-        document,
-        onNavigate: window.onNavigate,
-        mockStore,
-        localStorage: window.localStorage,
-      });
+  beforeEach(() => {
+    // Set up the test environment
+    document.body.innerHTML = NewBillUI();
 
+    onNavigateMock = jest.fn();
+    window.onNavigate = onNavigateMock;
+
+    const onNavigate = (pathname) => {
+      document.body.innerHTML = ROUTES({ pathname });
+    };
+
+    newBill = new NewBill({
+      document,
+      onNavigate,
+      mockStore,
+      localStorage: window.localStorage,
+    });
+
+    const fileErrorMessage = screen.getByTestId("file-error-message");
+    if (fileErrorMessage.classList.contains("visible")) {
+      fileErrorMessage.classList.remove("visible");
+    }
+  });
+
+  describe("When I submit the form with empty fields", () => {
+    test("Then I should stay on the NewBill page", async () => {
       expect(screen.getByTestId("expense-name").value).toBe("");
       expect(screen.getByTestId("datepicker").value).toBe("");
       expect(screen.getByTestId("amount").value).toBe("");
@@ -83,24 +101,13 @@ describe("Given I am connected as an employee", () => {
 
       expect(handleSubmit).toHaveBeenCalled();
       expect(form).toBeTruthy();
-      expect(onNavigateMock).toHaveBeenCalledWith(ROUTES_PATH.NewBill);
+
+      await waitFor(() => expect(onNavigateMock).toHaveBeenCalledTimes(0));
     });
   });
 
-  describe("When I am on the NewBill page and I upload a file with the wrong format", () => {
+  describe("When I upload a file with the wrong format", () => {
     test("Then it should return an error message", async () => {
-      document.body.innerHTML = NewBillUI();
-      const onNavigate = (pathname) => {
-        document.body.innerHTML = ROUTES({ pathname });
-      };
-
-      const newBill = new NewBill({
-        document,
-        onNavigate,
-        mockStore,
-        localStorage: window.localStorage,
-      });
-
       const file = new File(["hello"], "hello.txt", { type: "txt/plain" });
       const inputFile = screen.getByTestId("file");
 
@@ -117,38 +124,33 @@ describe("Given I am connected as an employee", () => {
       expect(handleChangeFile).toHaveBeenCalled();
       expect(inputFile.files[0].name).toBe("hello.txt");
 
+      // await waitFor(() =>
+      //   expect(screen.getByTestId("file-error-message").classList).toContain(
+      //     "visible"
+      //   )
+      // );
+
       await waitFor(() =>
-        expect(screen.getByTestId("file-error-message").classList).toContain(
-          "visible"
-        )
-      );
+      expect(screen.getByTestId("file-error-message").classList.contains("visible")).toBeTruthy()
+    );
+    
     });
   });
 
-  describe("When I am on the NewBill page and I upload a file with the good format", () => {
+  describe("When I upload a file with the correct format", () => {
     test("Then I should not have the error message about the file format", async () => {
-      // Set up the test environment
-      document.body.innerHTML = NewBillUI();
-      const onNavigate = (pathname) => {
-        document.body.innerHTML = ROUTES({ pathname });
-      };
-
-      const newBill = new NewBill({
-        document,
-        onNavigate,
-        store: mockStore,
-        localStorage: window.localStorage,
-      });
-
       // Simulate file upload
       const file = new File(["img"], "image.jpg", { type: "image/jpeg" });
       const inputFile = screen.getByTestId("file");
+
       const handleChangeFile = jest.fn((e) => newBill.handleChangeFile(e));
       inputFile.addEventListener("change", handleChangeFile);
+
       const fileList = createFileList([file]);
       Object.defineProperty(inputFile, "files", {
         get: () => fileList,
       });
+
       fireEvent.change(inputFile);
 
       // Check that the file was uploaded successfully
@@ -158,11 +160,9 @@ describe("Given I am connected as an employee", () => {
       // Check that the error message is not displayed
       await waitFor(() =>
         expect(
-          screen.getByTestId("file-error-message").classList
-        ).not.toContain("visible")
+          screen.getByTestId("file-error-message").classList.contains("visible")).not.toBeTruthy()
       );
     });
-
   });
 });
 
@@ -186,6 +186,14 @@ describe("Given I am connected as an employee on the NewBill page, and I submit 
     root.setAttribute("id", "root");
     document.body.append(root);
     router();
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+    const root = document.getElementById("root");
+    if (root) {
+      document.body.removeChild(root);
+    }
   });
 
   describe("When the API is working well", () => {
@@ -218,12 +226,14 @@ describe("Given I am connected as an employee on the NewBill page, and I submit 
 
       // Wait for the handleChangeFile to be called
       await waitFor(() => expect(newBill.fileUrl).toBeTruthy());
-      
-      mockStore.bills().update = jest.fn().mockImplementation(() => Promise.resolve({}));
+
+      mockStore.bills().update = jest
+        .fn()
+        .mockImplementation(() => Promise.resolve({}));
       newBill.onNavigate = jest.fn(newBill.onNavigate(ROUTES_PATH.Bills));
       // Submit the form
       fireEvent.submit(form);
-      
+
       // Check if the POST request is called with the correct data
       const expectedData = {
         email: "a@a",
@@ -239,7 +249,8 @@ describe("Given I am connected as an employee on the NewBill page, and I submit 
         status: "pending",
       };
 
-      expect(mockStore.bills().update).toHaveBeenCalled();
+      // expect(mockStore.bills().update).toHaveBeenCalled();
+      expect(mockStore.bills().update).toHaveBeenCalledWith(expectedData);
       expect(newBill.onNavigate).toHaveBeenCalledWith(ROUTES_PATH.Bills);
     });
   });
@@ -276,4 +287,4 @@ describe("Given I am connected as an employee on the NewBill page, and I submit 
       expect(console.error).toHaveBeenCalled();
     });
   });
-})
+});
