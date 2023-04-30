@@ -130,27 +130,23 @@ describe("Given I am connected as an Admin", () => {
         localStorage: window.localStorage,
       });
       document.body.innerHTML = DashboardUI({ data: { bills } });
-      const handleShowTickets1 = jest.fn((e) => {
+      const handleShowTickets = jest.fn((e) => {
         dashboard.handleShowTickets(e, bills, 1);
       });
+	  
+	  
       const icon1 = screen.getByTestId("arrow-icon1");
-      icon1.addEventListener("click", handleShowTickets1);
+      icon1.addEventListener("click", handleShowTickets);
+      userEvent.click(icon1);
+	  
+	  await waitFor(() => expect(handleShowTickets).toHaveBeenCalled());
+      const card = await waitFor(() => screen.getByTestId(`open-bill47qAXb6fIm2zOKkLzMro`));
+      expect(screen.getByTestId(`open-bill47qAXb6fIm2zOKkLzMro`)).toBeTruthy();
+	  userEvent.click(card);
 
-      await waitFor(() => {
-        userEvent.click(icon1);
-        expect(handleShowTickets1).toHaveBeenCalled();
-      });
-      await waitFor(() => {
-        expect(
-          screen.getByTestId(`open-bill47qAXb6fIm2zOKkLzMro`)
-        ).toBeTruthy();
-      });
-      const iconEdit = screen.getByTestId("open-bill47qAXb6fIm2zOKkLzMro");
-      userEvent.click(iconEdit);
-      console.log(document.body.innerHTML);
-      await waitFor(() => {
-        expect(screen.getByTestId(`dashboard-form`)).toBeTruthy();
-      });
+	  await waitFor(() => screen.getByTestId(`dashboard-form`));
+      expect(screen.getByTestId(`dashboard-form`)).toBeTruthy();
+	  
     });
   });
 
