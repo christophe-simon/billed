@@ -12,6 +12,7 @@ export default class NewBill {
     formNewBill.addEventListener("submit", this.handleSubmit);
     const file = this.document.querySelector(`input[data-testid="file"]`);
     file.addEventListener("change", this.handleChangeFile);
+    this.isFileUploaded = false; // add a new flag property
     this.fileUrl = null;
     this.fileName = null;
     this.billId = null;
@@ -38,8 +39,6 @@ export default class NewBill {
     formData.append("file", file);
     formData.append("email", email);
 
-    console.log("File path", filePath);
-
     if (["jpg", "jpeg", "png"].includes(fileExtension)) {
       this.store
         .bills()
@@ -49,11 +48,11 @@ export default class NewBill {
             noContentType: true,
           },
         })
-        .then(({ fileUrl, key }) => {
-          console.log(fileUrl);
+        .then(({ key, fileName, filePath }) => {
           this.billId = key;
-          this.fileUrl = fileUrl;
           this.fileName = fileName;
+          this.filePath = filePath;
+          this.isFileUploaded = true;
         })
         .catch((error) => console.error(error));
     } else {
@@ -62,9 +61,13 @@ export default class NewBill {
   };
   handleSubmit = (e) => {
     e.preventDefault();
+    // check whether the file has been uploaded before allowing the form to be submitted
+    if (!this.isFileUploaded) {
+      return;
+    }
     //console.log('e.target.querySelector(`input[data-testid="datepicker"]`).value', e.target.querySelector(`input[data-testid="datepicker"]`).value)
 
-    const email = JSON.parse(localStorage.getItem("user")).email;
+    // const email = JSON.parse(localStorage.getItem("user")).email;
     const bill = {
       email,
       type: e.target.querySelector(`select[data-testid="expense-type"]`).value,
@@ -79,7 +82,7 @@ export default class NewBill {
         20,
       commentary: e.target.querySelector(`textarea[data-testid="commentary"]`)
         .value,
-      fileUrl: this.fileUrl,
+      filePath: this.filePath,
       fileName: this.fileName,
       status: "pending",
     };
