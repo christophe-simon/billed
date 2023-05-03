@@ -13,7 +13,7 @@ export default class NewBill {
     const file = this.document.querySelector(`input[data-testid="file"]`);
     file.addEventListener("change", this.handleChangeFile);
     this.isFileUploaded = false; // add a new flag property
-    this.fileUrl = null;
+    this.filePath = null;
     this.fileName = null;
     this.billId = null;
     new Logout({ document, localStorage, onNavigate });
@@ -67,7 +67,7 @@ export default class NewBill {
     }
     //console.log('e.target.querySelector(`input[data-testid="datepicker"]`).value', e.target.querySelector(`input[data-testid="datepicker"]`).value)
 
-    // const email = JSON.parse(localStorage.getItem("user")).email;
+    const email = JSON.parse(localStorage.getItem("user")).email;
     const bill = {
       email,
       type: e.target.querySelector(`select[data-testid="expense-type"]`).value,

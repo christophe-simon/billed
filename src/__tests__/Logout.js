@@ -2,7 +2,7 @@
  * @jest-environment jsdom
  */
 
-import { screen } from "@testing-library/dom"
+import { screen, fireEvent } from "@testing-library/dom"
 import Logout from "../containers/Logout.js"
 import '@testing-library/jest-dom/extend-expect'
 import { localStorageMock } from "../__mocks__/localStorage.js"
@@ -42,7 +42,7 @@ describe('Given I am connected', () => {
 
       const disco = screen.getByTestId('layout-disconnect')
       disco.addEventListener('click', handleClick)
-      userEvent.click(disco)
+      fireEvent.click(disco)
       expect(handleClick).toHaveBeenCalled()
       expect(screen.getByText('Administration')).toBeTruthy()
     })

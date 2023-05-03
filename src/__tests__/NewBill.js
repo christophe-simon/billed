@@ -37,6 +37,13 @@ describe("When the API is working well", () => {
     const onNavigate = (pathname) => {
       document.body.innerHTML = ROUTES({ pathname });
     };
+
+    mockStore.bills().create = jest.fn().mockResolvedValue({
+      key: "1",
+      fileName: "image.jpg",
+      filePath: "path/to/image.jpg",
+    });
+
     const newBill = new NewBill({
       document,
       onNavigate,
@@ -61,6 +68,9 @@ describe("When the API is working well", () => {
     const file = new File(["img"], "image.jpg", { type: "image/jpg" });
     userEvent.upload(screen.getByTestId("file"), file);
 
+    // Wait for the handleChangeFile to be called
+    await waitFor(() => expect(newBill.filePath).toBeTruthy());
+
     newBill.onNavigate = jest.fn(() => newBill.onNavigate(ROUTES_PATH.Bills));
     mockStore.bills().update = jest.fn();
 
@@ -77,7 +87,7 @@ describe("When the API is working well", () => {
       vat: "10",
       pct: "20",
       commentary: "Test commentary",
-      filePath: newBill.filePath,
+      fileUrl: newBill.fileUrl,
       fileName: "image.jpg",
       status: "pending",
     };
@@ -257,12 +267,6 @@ describe("Given I am connected as an employee and I am on the NewBill page", () 
 
       expect(handleChangeFile).toHaveBeenCalled();
       expect(inputFile.files[0].name).toBe("hello.txt");
-
-      // await waitFor(() =>
-      //   expect(screen.getByTestId("file-error-message").classList).toContain(
-      //     "visible"
-      //   )
-      // );
 
       await waitFor(() =>
         expect(
